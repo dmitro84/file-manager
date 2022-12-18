@@ -1,10 +1,10 @@
 import * as readline from 'node:readline/promises'
 import { getUsername } from './get-username.js'
 import { __dirname } from './utils.js'
-import { homedir } from 'node:os'
+import { homedir, EOL, cpus, userInfo, arch } from 'node:os'
 import { screenFolder } from './screen-folder.js'
 import { parse, isAbsolute } from 'path'
-import { stat, unlink } from 'fs'
+import { stat } from 'fs'
 import { join } from 'node:path'
 import { createFile } from './create-file.js'
 import { readMyFile } from './read-my-file.js'
@@ -181,6 +181,40 @@ rl.on('line', (line) => {
           join(destFile, sourceFileName)
         )
       }
+      console.log(`You are currently in ${currentDir}`)
+    } else {
+      console.log('Error. Enter correct command.')
+    }
+  }
+
+  if (line.toString().trim().indexOf('os') === 0) {
+    if (line[2] === ' ' && line[3]) {
+      const args = line.slice(3).trim()
+
+      switch (args) {
+        case '--EOL':
+          console.log(`EOL for your os: `, EOL.split())
+          break
+        case '--cpus':
+          {
+            cpus().map((item) =>
+              console.log({ model: item.model, frequency: item.speed })
+            )
+          }
+          break
+        case '--homedir':
+          console.log(homedir().toString())
+          break
+        case '--username':
+          console.log('system user name: ', userInfo().username)
+          break
+        case '--architecture':
+          console.log('Your architecture: ', arch())
+          break
+        default:
+          console.log('Error. Enter correct command.')
+      }
+
       console.log(`You are currently in ${currentDir}`)
     } else {
       console.log('Error. Enter correct command.')
