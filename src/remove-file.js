@@ -1,4 +1,3 @@
-import { __dirname } from './utils.js'
 import { unlink } from 'fs/promises'
 import { existsSync } from 'fs'
 
@@ -9,6 +8,6 @@ export const removeFile = async (file) => {
     }
     await unlink(file)
   } catch (error) {
-    throw error
+    console.log(error)
   }
 }
