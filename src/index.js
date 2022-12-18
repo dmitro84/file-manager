@@ -12,6 +12,7 @@ import { removeFile } from './remove-file.js'
 import { renameFile } from './rename-file.js'
 import { copyMyFile } from './copy-file.js'
 import { moveFile } from './move-file.js'
+import { calculateHash } from './calc-hash.js'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -216,6 +217,25 @@ rl.on('line', (line) => {
       }
 
       console.log(`You are currently in ${currentDir}`)
+    } else {
+      console.log('Error. Enter correct command.')
+    }
+  }
+
+  if (line.toString().trim().indexOf('hash') === 0) {
+    if (line[4] === ' ' && line[5]) {
+      const fileName = line.slice(5).trim()
+      if (isAbsolute(fileName)) {
+        calculateHash(fileName).then(() => {
+          console.log()
+          console.log(`You are currently in ${currentDir}`)
+        })
+      } else {
+        calculateHash(fileName).then(() => {
+          console.log()
+          console.log(`You are currently in ${currentDir}`)
+        })
+      }
     } else {
       console.log('Error. Enter correct command.')
     }
