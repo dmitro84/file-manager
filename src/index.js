@@ -13,6 +13,8 @@ import { renameFile } from './rename-file.js'
 import { copyMyFile } from './copy-file.js'
 import { moveFile } from './move-file.js'
 import { calculateHash } from './calc-hash.js'
+import { compress } from './compress.js'
+import { decompress } from './decompress.js'
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -136,6 +138,10 @@ rl.on('line', (line) => {
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const oldFileName = args[0]
+      if (!args[1]) {
+        console.log('Error. Please enter correct command')
+        return
+      }
       const newFileName = args[1]
       if (isAbsolute(oldFileName)) {
         renameFile(oldFileName, join(parse(oldFileName).dir, newFileName))
@@ -153,6 +159,10 @@ rl.on('line', (line) => {
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const sourceFileName = args[0]
+      if (!args[1]) {
+        console.log('Error. Please enter correct command')
+        return
+      }
       const destFile = args[1]
       if (isAbsolute(sourceFileName)) {
         copyMyFile(sourceFileName, join(destFile, parse(sourceFileName).base))
@@ -173,6 +183,10 @@ rl.on('line', (line) => {
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const sourceFileName = args[0]
+      if (!args[1]) {
+        console.log('Error. Please enter correct command')
+        return
+      }
       const destFile = args[1]
       if (isAbsolute(sourceFileName)) {
         moveFile(sourceFileName, join(destFile, parse(sourceFileName).base))
@@ -235,6 +249,62 @@ rl.on('line', (line) => {
           console.log()
           console.log(`You are currently in ${currentDir}`)
         })
+      }
+    } else {
+      console.log('Error. Enter correct command.')
+    }
+  }
+
+  if (line.toString().trim().indexOf('compress') === 0) {
+    if (line[8] === ' ' && line[9]) {
+      const args = line.slice(9).trim().split(' ')
+      const sourceFilePath = args[0]
+      if (!args[1]) {
+        console.log('Error. Please enter correct command')
+        return
+      }
+      let destFilePath = args[1]
+      if (destFilePath === '.') {
+        destFilePath = currentDir
+      }
+      if (isAbsolute(sourceFilePath)) {
+        const fileName = parse(join(sourceFilePath)).base + '.bz'
+        compress(join(sourceFilePath), join(destFilePath, fileName))
+        console.log(`You are currently in ${currentDir}`)
+      } else {
+        const fileName = parse(join(currentDir, sourceFilePath)).base + '.bz'
+        compress(join(currentDir, sourceFilePath), join(destFilePath, fileName))
+        console.log(`You are currently in ${currentDir}`)
+      }
+    } else {
+      console.log('Error. Enter correct command.')
+    }
+  }
+
+  if (line.toString().trim().indexOf('decompress') === 0) {
+    if (line[10] === ' ' && line[11]) {
+      const args = line.slice(11).trim().split(' ')
+      const sourceFilePath = args[0]
+      if (!args[1]) {
+        console.log('Error. Please enter correct command')
+        return
+      }
+      let destFilePath = args[1]
+      if (destFilePath === '.') {
+        destFilePath = currentDir
+      }
+      if (isAbsolute(sourceFilePath)) {
+        const fileName =
+          parse(join(sourceFilePath)).dir + parse(sourceFilePath).name
+        decompress(join(sourceFilePath), join(destFilePath, fileName))
+        console.log(`You are currently in ${currentDir}`)
+      } else {
+        const fileName = join(
+          parse(join(currentDir, sourceFilePath)).dir,
+          parse(sourceFilePath).name
+        )
+        decompress(join(currentDir, sourceFilePath), fileName)
+        console.log(`You are currently in ${currentDir}`)
       }
     } else {
       console.log('Error. Enter correct command.')
