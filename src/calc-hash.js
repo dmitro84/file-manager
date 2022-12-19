@@ -1,7 +1,5 @@
 import { createHash } from 'crypto'
 import { createReadStream } from 'fs'
-import { stdout } from 'process'
-import { EOL } from 'os'
 
 export const calculateHash = async (file) => {
   let data = ''

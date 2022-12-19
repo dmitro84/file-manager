@@ -33,23 +33,29 @@ if (!username) {
 }
 
 rl.on('line', (line) => {
+  let isCommand = false
+
   if (line.toString().trim() === '.exit') {
     console.log(`Thank you for using File Manager, ${username}, goodbye!`)
     rl.close()
+    return
   }
 
   if (line.toString().trim() === 'ls') {
+    isCommand = true
     screenFolder(currentDir).then(() =>
       console.log(`You are currently in ${currentDir}`)
     )
   }
 
   if (line.toString().trim() === 'up') {
+    isCommand = true
     currentDir = parse(currentDir).dir
     console.log(`You are currently in ${currentDir}`)
   }
 
   if (line.toString().trim().indexOf('cd') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       let inputPath = line.slice(3).trim()
       let futureDir = ''
@@ -68,6 +74,7 @@ rl.on('line', (line) => {
       stat(futureDir, function (err, stats) {
         if (err) {
           console.log('Path doesn`t exist.')
+          console.log(`You are currently in ${currentDir}`)
         } else {
           if (stats.isFile()) {
             console.log('Path isn`t a folder')
@@ -83,16 +90,19 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('add') === 0) {
+    isCommand = true
     if (line[3] === ' ' && line[4]) {
       const fileName = line.slice(4).trim()
       createFile(join(currentDir, fileName))
       console.log(`You are currently in ${currentDir}`)
     } else {
       console.log('Error. Enter correct command.')
+      console.log(`You are currently in ${currentDir}`)
     }
   }
 
   if (line.toString().trim().indexOf('cat') === 0) {
+    isCommand = true
     if (line[3] === ' ' && line[4]) {
       const fileName = line.slice(4).trim()
       const stream = readMyFile(join(currentDir, fileName))
@@ -106,8 +116,7 @@ rl.on('line', (line) => {
           })
           readStream.on('error', (error) => console.log('Error', error.message))
         })
-        .catch((err) => {
-          console.log(err)
+        .catch(() => {
           console.log(`You are currently in ${currentDir}`)
         })
     } else {
@@ -116,6 +125,7 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('rm') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       const fileName = line.slice(3).trim()
       if (isAbsolute(fileName)) {
@@ -124,17 +134,16 @@ rl.on('line', (line) => {
         removeFile(join(currentDir, fileName))
           .then(() => console.log(`You are currently in ${currentDir}`))
           .catch(() => {
-            console.log()
             console.log(`You are currently in ${currentDir}`)
           })
       }
-      console.log(`You are currently in ${currentDir}`)
     } else {
       console.log('Error. Enter correct command.')
     }
   }
 
   if (line.toString().trim().indexOf('rn') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const oldFileName = args[0]
@@ -145,17 +154,20 @@ rl.on('line', (line) => {
       const newFileName = args[1]
       if (isAbsolute(oldFileName)) {
         renameFile(oldFileName, join(parse(oldFileName).dir, newFileName))
+          .then(() => console.log(`You are currently in ${currentDir}`))
+          .catch((err) => console.log(err))
       } else {
         renameFile(join(currentDir, oldFileName), join(currentDir, newFileName))
+          .then(() => console.log(`You are currently in ${currentDir}`))
+          .catch((err) => console.log(err))
       }
-
-      console.log(`You are currently in ${currentDir}`)
     } else {
       console.log('Error. Enter correct command.')
     }
   }
 
   if (line.toString().trim().indexOf('cp') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const sourceFileName = args[0]
@@ -166,20 +178,29 @@ rl.on('line', (line) => {
       const destFile = args[1]
       if (isAbsolute(sourceFileName)) {
         copyMyFile(sourceFileName, join(destFile, parse(sourceFileName).base))
+          .then(() => console.log(`You are currently in ${currentDir}`))
+          .catch((err) => {
+            console.log(err)
+            console.log(`You are currently in ${currentDir}`)
+          })
       } else {
         copyMyFile(
           join(currentDir, sourceFileName),
           join(destFile, sourceFileName)
         )
+          .then(() => console.log(`You are currently in ${currentDir}`))
+          .catch((err) => {
+            console.log(err)
+            console.log(`You are currently in ${currentDir}`)
+          })
       }
-
-      console.log(`You are currently in ${currentDir}`)
     } else {
       console.log('Error. Enter correct command.')
     }
   }
 
   if (line.toString().trim().indexOf('mv') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim().split(' ')
       const sourceFileName = args[0]
@@ -203,6 +224,7 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('os') === 0) {
+    isCommand = true
     if (line[2] === ' ' && line[3]) {
       const args = line.slice(3).trim()
 
@@ -237,16 +259,15 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('hash') === 0) {
+    isCommand = true
     if (line[4] === ' ' && line[5]) {
       const fileName = line.slice(5).trim()
       if (isAbsolute(fileName)) {
         calculateHash(fileName).then(() => {
-          console.log()
           console.log(`You are currently in ${currentDir}`)
         })
       } else {
-        calculateHash(fileName).then(() => {
-          console.log()
+        calculateHash(join(currentDir, fileName)).then(() => {
           console.log(`You are currently in ${currentDir}`)
         })
       }
@@ -256,6 +277,7 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('compress') === 0) {
+    isCommand = true
     if (line[8] === ' ' && line[9]) {
       const args = line.slice(9).trim().split(' ')
       const sourceFilePath = args[0]
@@ -282,6 +304,7 @@ rl.on('line', (line) => {
   }
 
   if (line.toString().trim().indexOf('decompress') === 0) {
+    isCommand = true
     if (line[10] === ' ' && line[11]) {
       const args = line.slice(11).trim().split(' ')
       const sourceFilePath = args[0]
@@ -311,7 +334,9 @@ rl.on('line', (line) => {
     }
   }
 
-  //   console.log(`You are currently in ${currentDir}`)
+  if (!isCommand) {
+    console.log('Command hasn`t found. Please enter correct command.')
+  }
 })
 
 rl.on('SIGINT', () => {

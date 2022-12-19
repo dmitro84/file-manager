@@ -1,7 +1,7 @@
 import { createReadStream, createWriteStream, existsSync } from 'fs'
 import { pipeline } from 'stream'
 
-export function copyMyFile(source, dest) {
+export async function copyMyFile(source, dest) {
   if (existsSync(dest)) {
     console.log('File didn`t copy. File has exists yet.')
   }
@@ -13,7 +13,7 @@ export function copyMyFile(source, dest) {
   
   pipeline(input, output, (err) => {
     if (err) {
-      console.log(err)
+      console.log(err);
     }
   })
 }
